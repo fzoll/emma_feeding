@@ -14,6 +14,9 @@
     "categories": {
       "auth": {
         "emmafeeding08ca4db8": {}
+      },
+      "api": {
+        "emmafeeding": {}
       }
     }
   }
