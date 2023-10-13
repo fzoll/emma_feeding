@@ -69,6 +69,7 @@ const App = ({ signOut }) => {
     const feedData = {
       feedAt: date.toLocaleDateString('hu-HU'),
       name: stock.name,
+      comment: stock.comment
     };
 
     let newStocks;
@@ -148,7 +149,6 @@ const App = ({ signOut }) => {
             label="Comment"
             labelHidden
             variation="quiet"
-            required
           />
           <Button type="submit" variation="primary">
             Create Stock
@@ -203,7 +203,6 @@ const App = ({ signOut }) => {
             label="Comment"
             labelHidden
             variation="quiet"
-            required
           />
           <Button type="submit" variation="primary">
             Create Feed
