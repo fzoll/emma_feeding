@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import "@aws-amplify/ui-react/styles.css";
-import { API } from "aws-amplify";
+import { API, graphqlOperation } from "aws-amplify";
 import {
   Button,
   Flex,
@@ -28,7 +28,7 @@ const App = ({ signOut }) => {
   }, []);
 
   async function fetchStocks() {
-    const apiData = await API.graphql({ query: listStocks });
+    const apiData = await API.graphql(graphqlOperation(listStocks, { filter: {remaining: {ne: 0}} }));
     const stocksFromAPI = apiData.data.listStocks.items;
     setStocks(stocksFromAPI);
   }
@@ -176,4 +176,4 @@ const App = ({ signOut }) => {
   );
 };
 
-export default withAuthenticator(App);
+export default withAuthenticator(App, {hideSignUp:true});
