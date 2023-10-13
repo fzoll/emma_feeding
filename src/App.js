@@ -19,6 +19,9 @@ import {
 } from "./graphql/mutations";
 
 const App = ({ signOut }) => {
+  const dt = new Date();
+  const dtString = dt.toLocaleDateString('hu-HU');
+
   const [stocks, setStocks] = useState([]);
   const [feeds, setFeeds] = useState([]);
 
@@ -45,7 +48,8 @@ const App = ({ signOut }) => {
     const data = {
       name: form.get("name"),
       madeAt: form.get("madeAt"),
-      remaining: parseInt(form.get("remaining"))
+      remaining: parseInt(form.get("remaining")),
+      comment: form.get('comment')
     };
     await API.graphql({
       query: createStockMutation,
@@ -86,7 +90,23 @@ const App = ({ signOut }) => {
       query: createFeedMutation,
       variables: { input: feedData },
     });
-}
+  }
+
+  async function createFeed(event) {
+    event.preventDefault();
+    const form = new FormData(event.target);
+    const data = {
+      feedAt: form.get("feedAt"),
+      name: form.get("name"),
+      comment: form.get('comment')
+    };
+    await API.graphql({
+      query: createFeedMutation,
+      variables: { input: data },
+    });
+    fetchFeeds();
+    event.target.reset();
+  }
 
   return (
     <View className="App">
@@ -110,6 +130,7 @@ const App = ({ signOut }) => {
             labelHidden
             variation="quiet"
             required
+            defaultValue={dtString}
           />
           <TextField
             type="number"
@@ -154,6 +175,40 @@ const App = ({ signOut }) => {
             </Button>
           </Flex>
         ))}
+      </View>
+      <View as="form" margin="3rem 0" onSubmit={createFeed}>
+        <Flex direction="row" justifyContent="center">
+          <TextField
+            type="date"
+            name="feedAt"
+            placeholder="Feed date"
+            label="Feed date"
+            labelHidden
+            variation="quiet"
+            required
+            defaultValue={dtString}
+          />
+          <TextField
+            name="name"
+            placeholder="Name"
+            label="Name"
+            labelHidden
+            variation="quiet"
+            required
+          />
+          <TextField
+            type="text"
+            name="comment"
+            placeholder="Comment"
+            label="Comment"
+            labelHidden
+            variation="quiet"
+            required
+          />
+          <Button type="submit" variation="primary">
+            Create Feed
+          </Button>
+        </Flex>
       </View>
       <Heading level={2}>Feeds</Heading>
       <View margin="3rem 0">
