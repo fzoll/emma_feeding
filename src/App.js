@@ -17,6 +17,12 @@ import {
   createStock as createStockMutation,
   updateStock as updateStockMutation,
 } from "./graphql/mutations";
+import {
+  VerticalTimeline,
+  VerticalTimelineElement,
+} from "react-vertical-timeline-component";
+import "react-vertical-timeline-component/style.min.css";
+
 
 const App = ({ signOut }) => {
   const dt = new Date();
@@ -24,6 +30,7 @@ const App = ({ signOut }) => {
 
   const [stocks, setStocks] = useState([]);
   const [feeds, setFeeds] = useState([]);
+  const [feedsSum, setFeedsSum] = useState([]);
 
   useEffect(() => {
     fetchStocks();
@@ -40,6 +47,18 @@ const App = ({ signOut }) => {
     const apiData = await API.graphql({ query: listFeeds });
     const feedsFromAPI = apiData.data.listFeeds.items;
     setFeeds(feedsFromAPI);
+
+    var summary = feedsFromAPI.reduce(function(obj, feed){
+      if (!obj[feed.feedAt]) {
+          obj[feed.feedAt] = [`${feed.name} (${feed.comment})`];
+      } else {
+          obj[feed.feedAt].push(`${feed.name} (${feed.comment})`);
+      }
+      return obj;
+    }, {});
+    const dates = Object.keys(summary).sort().reverse();
+    let fs = dates.map((dt) => {return { "date": dt, items: summary[dt]}});
+    setFeedsSum(fs);
   }
 
   async function createStock(event) {
@@ -68,7 +87,7 @@ const App = ({ signOut }) => {
     };
     const feedData = {
       feedAt: date.toLocaleDateString('hu-HU'),
-      name: stock.name,
+      name: `${stock.name} (${stock.madeAt})`,
       comment: stock.comment
     };
 
@@ -80,9 +99,6 @@ const App = ({ signOut }) => {
     }
     setStocks(newStocks);
 
-    let newFeeds = [...feeds];
-    newFeeds.push(feedData);
-    setFeeds(newFeeds);
     await API.graphql({
       query: updateStockMutation,
       variables: { input: stockData },
@@ -91,6 +107,7 @@ const App = ({ signOut }) => {
       query: createFeedMutation,
       variables: { input: feedData },
     });
+    fetchFeeds();
   }
 
   async function createFeed(event) {
@@ -111,10 +128,12 @@ const App = ({ signOut }) => {
 
   return (
     <View className="App">
-      <Heading level={1}>My Stocks App</Heading>
-      <Button onClick={signOut}>Sign Out</Button>
+      <Flex direction="row" justifyContent="center" wrap="wrap">
+        <Heading level={1}>Emma feed tracking app</Heading>
+        <Button onClick={signOut}>Sign Out</Button>
+      </Flex>
       <View as="form" margin="3rem 0" onSubmit={createStock}>
-        <Flex direction="row" justifyContent="center">
+        <Flex direction="row" justifyContent="center" wrap="wrap">
           <TextField
             name="name"
             placeholder="Stock Name"
@@ -177,7 +196,7 @@ const App = ({ signOut }) => {
         ))}
       </View>
       <View as="form" margin="3rem 0" onSubmit={createFeed}>
-        <Flex direction="row" justifyContent="center">
+        <Flex direction="row" justifyContent="center" wrap="wrap">
           <TextField
             type="date"
             name="feedAt"
@@ -210,22 +229,33 @@ const App = ({ signOut }) => {
         </Flex>
       </View>
       <Heading level={2}>Feeds</Heading>
-      <View margin="3rem 0">
-        {feeds.map((feed) => (
-          <Flex
-            key={feed.id}
-            direction="row"
-            justifyContent="center"
-            alignItems="center"
-          >
-            <Text as="strong" fontWeight={700}>
-              {feed.feedAt}
-            </Text>
-            <Text as="span">{feed.name}</Text>
-            <Text as="span">{feed.comment}</Text>
-          </Flex>
+      <VerticalTimeline lineColor="">
+        {feedsSum.map((item, index) => (
+          <React.Fragment key={index}>
+            <VerticalTimelineElement
+              contentStyle={{
+                background: "rgba(120, 120, 120, 0.05)",
+                boxShadow: "none",
+                border: "1px solid rgba(0, 0, 0, 0.05)",
+                textAlign: "left",
+                padding: "1.3rem 2rem",
+              }}
+              contentArrowStyle={{
+                borderRight: "0.4rem solid rgba(120, 120, 120, 0.5)",
+              }}
+              date={item.date}
+            >
+              <p className="">
+                {item.items.map((it, index) => (
+                  <>
+                    {it}<br/>
+                  </>
+                ))}
+              </p>
+            </VerticalTimelineElement>
+          </React.Fragment>
         ))}
-      </View>
+      </VerticalTimeline>
     </View>
   );
 };
