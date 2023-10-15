@@ -86,7 +86,7 @@ const App = ({ signOut }) => {
       remaining: stock.remaining,
     };
     const feedData = {
-      feedAt: date.toLocaleDateString('hu-HU'),
+      feedAt: date.toISOString().split('T')[0],
       name: `${stock.name} (${stock.madeAt})`,
       comment: stock.comment
     };
