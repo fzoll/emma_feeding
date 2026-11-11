@@ -1,14 +1,15 @@
 # Emma feeding tracker
 
 Small React web app for tracking a baby's feeding: which stocks (batches) are
-in the freezer and what was fed when.
+on hand and what was fed when.
 
 ## What it does
 
-- **Sign in required.** The app is wrapped in the Amplify `withAuthenticator`
-  (Cognito); self sign-up is hidden, so accounts are created by an admin.
+- **Sign in required in the UI.** The app is wrapped in the Amplify
+  `withAuthenticator` (Cognito) with self sign-up hidden. The AppSync API itself
+  uses an API key and a public rule marked "FOR TESTING ONLY" in the schema.
 - **Stocks.** Create a stock (name, date made, count remaining, comment). Stocks
-  with remaining > 0 are listed. **Use** decrements the count and records a feed
+  with remaining ≠ 0 are listed. **Use** decrements the count and records a feed
   for today.
 - **Feeds.** Add a feed by hand (date, name, comment). Feeds are grouped by date
   and shown as a vertical timeline, newest first.
@@ -51,6 +52,6 @@ The repository shows an AWS Amplify project, not a deployment pipeline:
   provisioned by the Amplify CLI as CloudFormation (`staging` environment,
   `us-east-1`, Amplify app id in `amplify/team-provider-info.json`).
 - GraphQL operations in `src/graphql/` are generated from the schema
-  (`.graphqlconfig.yml`); `src/ui-components/` is Amplify Studio generated code.
+  (`.graphqlconfig.yml`).
 - There is no `amplify.yml`, CI workflow, or hosting config in the repo, so how
   the frontend build is hosted is not described here.
