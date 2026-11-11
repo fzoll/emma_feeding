@@ -1,71 +1,123 @@
-# emma_feeding
-# Getting Started with Create React App
+# Emma feeding tracker
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Small React web app for tracking a baby's feeding. It keeps two lists: the
+**stocks** (batches, for example of prepared food) that are on hand, and the
+**feeds** that have happened, shown as a timeline. Using one portion from a
+stock records a feed and lowers the stock's count in one click.
 
-## Available Scripts
+The app is a Create React App project (`react-scripts` 5, React 18). The UI
+uses `@aws-amplify/ui-react`, `react-vertical-timeline-component` for the
+timeline, and `aws-amplify` v5 to talk to the backend. The page title is
+"Emma feeding" and the heading is "Emma feed tracking app".
 
-In the project directory, you can run:
+## What it does
 
-### `npm start`
+Everything is in one screen, `src/App.js`, from top to bottom:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+1. **Sign-in.** The whole app is wrapped in Amplify's `withAuthenticator`
+   (Cognito). Self sign-up is hidden (`hideSignUp: true`), so users have to
+   exist in the user pool already. The pool in `amplify/backend/auth/` uses the
+   email address as the username, requires a password of at least 8
+   characters, and has MFA turned off. A **Sign Out** button sits in the header.
+2. **Create Stock form.** Fields: stock name, date made, number remaining
+   (stock size) and an optional comment. Submitting creates a `Stock` record
+   and refreshes the list.
+3. **Current Stocks.** Lists every stock whose `remaining` is not 0 (name, date
+   made, remaining count, comment). **Use** does three things: lowers
+   `remaining` by 1, updates the stock, and creates a `Feed` named
+   `<stock name> (<date made>)` that carries the stock's comment and today's
+   date. A stock that reaches 0 disappears from the list.
+4. **Create Feed form.** Records a feed by hand: date, name and an optional
+   comment. Useful for feeds that did not come from a stock.
+5. **Feeds timeline.** Feeds are grouped by date, newest date first, and drawn
+   as a vertical timeline. Each entry reads `name (comment)`; the parentheses
+   are added even when there is no comment.
+6. **Footer.** A bar showing today's date, how many feeds happened today and
+   what they were, or "No feeds yet today".
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+"Today" in the code is the UTC date (`new Date().toISOString()`), so around
+midnight it can differ from the local date.
 
-### `npm test`
+The lists are loaded with a single query each (`listStocks`, `listFeeds`): the
+app passes no `limit` and never follows `nextToken`. Once there are many
+records, older feeds or stocks may not show.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Data model
 
-### `npm run build`
+Defined in `amplify/backend/api/emmafeeding/schema.graphql` and served by AWS
+AppSync (GraphQL):
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- `Stock`: `id`, `name`, `madeAt`, `remaining`, `comment`.
+- `Feed`: `id`, `feedAt`, `name`, `comment`.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+The schema also declares a relation between them (`Stock.posts` has many
+`Feed`, `Feed.blog` belongs to `Stock`), but `src/App.js` never sets it. Dates
+are stored as plain strings.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+The API's default authorization is an API key (configured with a 7-day
+expiration in `amplify/backend/backend-config.json`), and the schema uses a
+public rule that is marked `FOR TESTING ONLY`. So sign-in protects the UI, not
+the API itself.
 
-### `npm run eject`
+## Run locally
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Requires Node.js and npm.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+npm install
+npm start      # dev server on http://localhost:3000
+npm run build  # production build into build/
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+`src/index.js` imports `src/aws-exports.js` and calls `Amplify.configure` with
+it. That file is generated by the Amplify CLI and is git-ignored, so a fresh
+clone does not start until you create it. If you have access to the Amplify
+project, `amplify pull` generates it. The repo defines one environment,
+`staging`, and its Amplify app id is in `amplify/team-provider-info.json`.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+`.vscode/launch.json` has a "Launch Chrome against localhost" debug
+configuration for `http://localhost:3000`.
 
-## Learn More
+## Tests
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```bash
+CI=true npm test -- --watchAll=false
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Tests run with react-scripts (Jest and Testing Library). The only test,
+`src/App.test.js`, is the unmodified Create React App sample: it renders the
+app and looks for the text "learn react". It does not pass: the run stops with
+`Cannot find module '@aws-amplify/ui-react/styles.css'` because Jest cannot
+load that stylesheet import in `src/App.js`. Even without that error it would
+fail: the app renders the sign-in screen first and has no "learn react" text. There are
+no working tests yet.
 
-### Code Splitting
+## Project layout
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- `src/App.js`: the whole UI and its data calls.
+- `src/index.js`: app entry; configures Amplify and renders `App`.
+- `src/graphql/`: queries, mutations, subscriptions and `schema.json`,
+  generated from the schema (see `.graphqlconfig.yml`).
+- `src/ui-components/`: Amplify Studio-generated create/update forms for `Feed` and
+  `Stock`. `App.js` does not import them.
+- `amplify/`: Amplify CLI project (API, auth, CLI feature flags, environment
+  info).
+- `public/`: static files for Create React App.
 
-### Analyzing the Bundle Size
+## Deployment
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+The repository shows an AWS Amplify project, not a deployment pipeline:
 
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- The backend (Cognito auth plus the AppSync API) is defined under
+  `amplify/backend/` and provisioned by the Amplify CLI as CloudFormation. The
+  environment is `staging` in `us-east-1`, as recorded in
+  `amplify/team-provider-info.json`.
+- `.gitignore` has the standard Amplify block, so generated files such as
+  `src/aws-exports.js`, `amplify/backend/amplify-meta.json` and
+  `amplify/#current-cloud-backend` are not committed and have to be generated
+  locally.
+- The GraphQL operations in `src/graphql/` are generated from the schema, so
+  after a schema change they need to be regenerated (`.graphqlconfig.yml`
+  holds the codegen settings).
+- There is no `amplify.yml`, CI workflow or hosting config in the repo, so how
+  the frontend build is hosted is not described here.
