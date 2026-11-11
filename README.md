@@ -1,71 +1,56 @@
-# emma_feeding
-# Getting Started with Create React App
+# Emma feeding tracker
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Small React web app for tracking a baby's feeding: which stocks (batches) are
+in the freezer and what was fed when.
 
-## Available Scripts
+## What it does
 
-In the project directory, you can run:
+- **Sign in required.** The app is wrapped in the Amplify `withAuthenticator`
+  (Cognito); self sign-up is hidden, so accounts are created by an admin.
+- **Stocks.** Create a stock (name, date made, count remaining, comment). Stocks
+  with remaining > 0 are listed. **Use** decrements the count and records a feed
+  for today.
+- **Feeds.** Add a feed by hand (date, name, comment). Feeds are grouped by date
+  and shown as a vertical timeline, newest first.
+- **Footer.** Shows today's feed count and what was fed.
 
-### `npm start`
+Data is stored through an AWS AppSync GraphQL API with two models, `Stock` and
+`Feed` (`amplify/backend/api/emmafeeding/schema.graphql`).
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Run locally
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Requires Node.js and npm.
 
-### `npm test`
+```bash
+npm install
+npm start      # dev server on http://localhost:3000
+npm run build  # production build into build/
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+`src/index.js` imports `src/aws-exports.js`, which is git-ignored and generated
+by the Amplify CLI. Without it the app does not start. With access to the
+Amplify project, generate it with `amplify pull` (the repo defines a `staging`
+environment in `amplify/team-provider-info.json`).
 
-### `npm run build`
+## Tests
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+CI=true npm test -- --watchAll=false
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Uses react-scripts (Jest + Testing Library). The only test, `src/App.test.js`,
+is the unmodified Create React App sample (it looks for "learn react"), and it
+currently fails to run because Jest cannot resolve
+`@aws-amplify/ui-react/styles.css`. There are no working tests yet.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Deployment
 
-### `npm run eject`
+The repository shows an AWS Amplify project, not a deployment pipeline:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Backend (auth + AppSync API) is defined under `amplify/backend/` and
+  provisioned by the Amplify CLI as CloudFormation (`staging` environment,
+  `us-east-1`, Amplify app id in `amplify/team-provider-info.json`).
+- GraphQL operations in `src/graphql/` are generated from the schema
+  (`.graphqlconfig.yml`); `src/ui-components/` is Amplify Studio generated code.
+- There is no `amplify.yml`, CI workflow, or hosting config in the repo, so how
+  the frontend build is hosted is not described here.
