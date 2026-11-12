@@ -87,8 +87,7 @@ configuration for `http://localhost:3000`.
 CI=true npm test -- --watchAll=false
 ```
 
-Tests run with react-scripts (Jest and Testing Library). There are three test
-files:
+Tests run with react-scripts (Jest and Testing Library). The test files are:
 
 - `src/sortStocks.test.js` tests `sortStocksOldestFirst()` (oldest first, ties
   keep their order). It passes.
