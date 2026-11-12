@@ -24,6 +24,7 @@ import {
 import "react-vertical-timeline-component/style.min.css";
 import { localDateKey } from "./localDate";
 import { parseStockSize, STOCK_SIZE_ERROR } from "./stockSize";
+import { sortStocksOldestFirst } from "./sortStocks";
 
 
 const App = ({ signOut }) => {
@@ -43,7 +44,7 @@ const App = ({ signOut }) => {
   async function fetchStocks() {
     const apiData = await API.graphql(graphqlOperation(listStocks, { filter: {remaining: {ne: 0}} }));
     const stocksFromAPI = apiData.data.listStocks.items;
-    setStocks(stocksFromAPI);
+    setStocks(sortStocksOldestFirst(stocksFromAPI));
   }
 
   async function fetchFeeds() {

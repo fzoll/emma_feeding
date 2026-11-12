@@ -23,7 +23,8 @@ Everything is in one screen, `src/App.js`, from top to bottom:
    (stock size) and an optional comment. Submitting creates a `Stock` record
    and refreshes the list.
 3. **Current Stocks.** Lists every stock whose `remaining` is not 0 (name, date
-   made, remaining count, comment). **Use** does three things: lowers
+   made, remaining count, comment), oldest date made first so the stock to use
+   next is on top. **Use** does three things: lowers
    `remaining` by 1, updates the stock, and creates a `Feed` named
    `<stock name> (<date made>)` that carries the stock's comment and today's
    local date. A stock that reaches 0 disappears from the list.
@@ -86,9 +87,11 @@ configuration for `http://localhost:3000`.
 CI=true npm test -- --watchAll=false
 ```
 
-Tests run with react-scripts (Jest and Testing Library). There are two test
+Tests run with react-scripts (Jest and Testing Library). There are three test
 files:
 
+- `src/sortStocks.test.js` tests `sortStocksOldestFirst()` (oldest first, ties
+  keep their order, stocks without a date last). It passes.
 - `src/localDate.test.js` tests `localDateKey()` (local date, not UTC; month and
   day are zero-padded). It passes.
 - `src/App.test.js` is the unmodified Create React App sample: it renders the
@@ -103,6 +106,7 @@ The UI itself has no working tests yet.
 
 - `src/App.js`: the whole UI and its data calls.
 - `src/localDate.js`: `localDateKey()`, the local `YYYY-MM-DD` date used for "today".
+- `src/sortStocks.js`: `sortStocksOldestFirst()`, the order of the Current Stocks list.
 - `src/index.js`: app entry; configures Amplify and renders `App`.
 - `src/graphql/`: queries, mutations, subscriptions and `schema.json`,
   generated from the schema (see `.graphqlconfig.yml`).
