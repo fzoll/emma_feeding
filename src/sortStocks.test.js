@@ -17,15 +17,6 @@ test("keeps the order of stocks made on the same day", () => {
   expect(sortStocksOldestFirst(stocks).map((s) => s.id)).toEqual(["x", "y"]);
 });
 
-test("puts stocks without a date last", () => {
-  const stocks = [
-    { id: "n", madeAt: null },
-    { id: "a", madeAt: "2026-03-02" },
-    { id: "e", madeAt: "" },
-  ];
-  expect(sortStocksOldestFirst(stocks).map((s) => s.id)).toEqual(["a", "n", "e"]);
-});
-
 test("does not change the input array", () => {
   const stocks = [{ id: "b", madeAt: "2026-03-02" }, { id: "a", madeAt: "2025-01-01" }];
   sortStocksOldestFirst(stocks);

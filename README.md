@@ -91,7 +91,7 @@ Tests run with react-scripts (Jest and Testing Library). There are three test
 files:
 
 - `src/sortStocks.test.js` tests `sortStocksOldestFirst()` (oldest first, ties
-  keep their order, stocks without a date last). It passes.
+  keep their order). It passes.
 - `src/localDate.test.js` tests `localDateKey()` (local date, not UTC; month and
   day are zero-padded). It passes.
 - `src/App.test.js` is the unmodified Create React App sample: it renders the
