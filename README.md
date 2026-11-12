@@ -26,17 +26,20 @@ Everything is in one screen, `src/App.js`, from top to bottom:
    made, remaining count, comment). **Use** does three things: lowers
    `remaining` by 1, updates the stock, and creates a `Feed` named
    `<stock name> (<date made>)` that carries the stock's comment and today's
-   date. A stock that reaches 0 disappears from the list.
+   local date. A stock that reaches 0 disappears from the list.
 4. **Create Feed form.** Records a feed by hand: date, name and an optional
    comment. Useful for feeds that did not come from a stock.
 5. **Feeds timeline.** Feeds are grouped by date, newest date first, and drawn
-   as a vertical timeline. Each entry reads `name (comment)`; the parentheses
-   are added even when there is no comment.
+   as a vertical timeline. Each entry reads `name (comment)`. When a feed has
+   no comment (empty or only spaces), the entry is just `name`, with no empty
+   parentheses.
 6. **Footer.** A bar showing today's date, how many feeds happened today and
    what they were, or "No feeds yet today".
 
-"Today" in the code is the UTC date (`new Date().toISOString()`), so around
-midnight it can differ from the local date.
+"Today" is the local calendar date of the device, as `YYYY-MM-DD`. The helper
+`localDateKey()` in `src/localDate.js` builds it, and both the footer and the
+**Use** button's feed date use it. The earlier UTC date (`toISOString()`) could
+be a day off around midnight.
 
 The lists are loaded with a single query each (`listStocks`, `listFeeds`): the
 app passes no `limit` and never follows `nextToken`. Once there are many
@@ -84,17 +87,23 @@ configuration for `http://localhost:3000`.
 CI=true npm test -- --watchAll=false
 ```
 
-Tests run with react-scripts (Jest and Testing Library). The only test,
-`src/App.test.js`, is the unmodified Create React App sample: it renders the
-app and looks for the text "learn react". It does not pass: the run stops with
-`Cannot find module '@aws-amplify/ui-react/styles.css'` because Jest cannot
-load that stylesheet import in `src/App.js`. Even without that error it would
-fail: the app renders the sign-in screen first and has no "learn react" text. There are
-no working tests yet.
+Tests run with react-scripts (Jest and Testing Library). There are two test
+files:
+
+- `src/localDate.test.js` tests `localDateKey()` (local date, not UTC; month and
+  day are zero-padded). It passes.
+- `src/App.test.js` is the unmodified Create React App sample: it renders the
+  app and looks for the text "learn react". It does not pass: the run stops with
+  `Cannot find module '@aws-amplify/ui-react/styles.css'` because Jest cannot
+  load that stylesheet import in `src/App.js`. Even without that error it would
+  fail: the app renders the sign-in screen first and has no "learn react" text.
+
+The UI itself has no working tests yet.
 
 ## Project layout
 
 - `src/App.js`: the whole UI and its data calls.
+- `src/localDate.js`: `localDateKey()`, the local `YYYY-MM-DD` date used for "today".
 - `src/index.js`: app entry; configures Amplify and renders `App`.
 - `src/graphql/`: queries, mutations, subscriptions and `schema.json`,
   generated from the schema (see `.graphqlconfig.yml`).
