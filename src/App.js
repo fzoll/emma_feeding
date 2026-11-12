@@ -22,6 +22,7 @@ import {
   VerticalTimelineElement,
 } from "react-vertical-timeline-component";
 import "react-vertical-timeline-component/style.min.css";
+import { localDateKey } from "./localDate";
 
 
 const App = ({ signOut }) => {
@@ -79,14 +80,13 @@ const App = ({ signOut }) => {
   }
 
   async function decreaseStock(stock) {
-    const date = new Date();
     stock.remaining -= 1;
     const stockData = {
       id: stock.id,
       remaining: stock.remaining,
     };
     const feedData = {
-      feedAt: date.toISOString().split('T')[0],
+      feedAt: localDateKey(),
       name: `${stock.name} (${stock.madeAt})`,
       comment: stock.comment
     };
@@ -126,7 +126,7 @@ const App = ({ signOut }) => {
     event.target.reset();
   }
 
-  const todayKey = new Date().toISOString().split("T")[0];
+  const todayKey = localDateKey();
   const todayFeed = feedsSum.find((f) => f.date === todayKey);
   const todayItems = todayFeed ? todayFeed.items : [];
 
