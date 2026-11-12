@@ -33,8 +33,10 @@ Everything is in one screen, `src/App.js`, from top to bottom:
    as a vertical timeline. Each entry reads `name (comment)`. When a feed has
    no comment (missing, empty or only whitespace), the entry is just `name`, with no empty
    parentheses.
-6. **Footer.** A bar showing today's date, how many feeds happened today
-   ("1 feed today", "N feeds today") and what they were, or "No feeds yet today".
+6. **Footer.** A bar showing today's date, the feed count, and what the feeds
+   were. The count reads "1 feed today" for one feed and "N feeds today" for any
+   other number (so "0 feeds today" on an empty day). The list of feeds is
+   replaced by "No feeds yet today" when there are none.
 
 "Today" is the local calendar date of the device, as `YYYY-MM-DD`. The helper
 `localDateKey()` in `src/localDate.js` builds it, and both the footer and the
