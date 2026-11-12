@@ -33,8 +33,8 @@ Everything is in one screen, `src/App.js`, from top to bottom:
    as a vertical timeline. Each entry reads `name (comment)`. When a feed has
    no comment (missing, empty or only whitespace), the entry is just `name`, with no empty
    parentheses.
-6. **Footer.** A bar showing today's date, how many feeds happened today and
-   what they were, or "No feeds yet today".
+6. **Footer.** A bar showing today's date, how many feeds happened today
+   ("1 feed today", "N feeds today") and what they were, or "No feeds yet today".
 
 "Today" is the local calendar date of the device, as `YYYY-MM-DD`. The helper
 `localDateKey()` in `src/localDate.js` builds it, and both the footer and the
@@ -102,6 +102,7 @@ The UI itself has no working tests yet.
 ## Project layout
 
 - `src/App.js`: the whole UI and its data calls.
+- `src/feedCount.js`: `feedCountLabel()`, the footer's "N feed(s) today" text.
 - `src/localDate.js`: `localDateKey()`, the local `YYYY-MM-DD` date used for "today".
 - `src/index.js`: app entry; configures Amplify and renders `App`.
 - `src/graphql/`: queries, mutations, subscriptions and `schema.json`,

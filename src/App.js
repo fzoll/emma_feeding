@@ -11,6 +11,7 @@ import {
   View,
   withAuthenticator,
 } from "@aws-amplify/ui-react";
+import { feedCountLabel } from "./feedCount";
 import { listStocks, listFeeds } from "./graphql/queries";
 import {
   createFeed as createFeedMutation,
@@ -275,7 +276,7 @@ const App = ({ signOut }) => {
             Today ({todayKey})
           </Text>
           <Text as="span">
-            {todayItems.length} feed{todayItems.length === 1 ? "" : "s"}
+            {feedCountLabel(todayItems.length)}
           </Text>
           <Text as="span">
             {todayItems.length > 0
