@@ -11,7 +11,7 @@ import {
   View,
   withAuthenticator,
 } from "@aws-amplify/ui-react";
-import { feedCountLabel } from "./feedCount";
+import { feedCountLabel, pageTitle } from "./feedCount";
 import { listStocks, listFeeds } from "./graphql/queries";
 import {
   createFeed as createFeedMutation,
@@ -133,6 +133,10 @@ const App = ({ signOut }) => {
   const todayKey = localDateKey();
   const todayFeed = feedsSum.find((f) => f.date === todayKey);
   const todayItems = todayFeed ? todayFeed.items : [];
+
+  useEffect(() => {
+    document.title = pageTitle(todayItems.length);
+  }, [todayItems.length]);
 
   return (
     <View className="App">
