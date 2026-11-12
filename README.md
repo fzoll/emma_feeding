@@ -8,7 +8,8 @@ stock records a feed and lowers the stock's count in one click.
 The app is a Create React App project (`react-scripts` 5, React 18). The UI
 uses `@aws-amplify/ui-react`, `react-vertical-timeline-component` for the
 timeline, and `aws-amplify` v5 to talk to the backend. The page title is
-"Emma feeding" and the heading is "Emma feed tracking app".
+"Emma feeding (N)", where N is today's feed count (the same number as in the
+footer), and the heading is "Emma feed tracking app".
 
 ## What it does
 
@@ -36,7 +37,9 @@ Everything is in one screen, `src/App.js`, from top to bottom:
 6. **Footer.** A bar showing today's date, the feed count, and what the feeds
    were. The count reads "1 feed today" for one feed and "N feeds today" for any
    other number (so "0 feeds today" on an empty day). The list of feeds is
-   replaced by "No feeds yet today" when there are none.
+   replaced by "No feeds yet today" when there are none. The browser tab title
+   shows the same count: "Emma feeding (3)", or "Emma feeding (0)" on an empty
+   day (`public/index.html` has the plain "Emma feeding" until the app loads).
 
 "Today" is the local calendar date of the device, as `YYYY-MM-DD`. The helper
 `localDateKey()` in `src/localDate.js` builds it, and both the footer and the
@@ -104,7 +107,7 @@ The UI itself has no working tests yet.
 ## Project layout
 
 - `src/App.js`: the whole UI and its data calls.
-- `src/feedCount.js`: `feedCountLabel()`, the footer's "N feed(s) today" text.
+- `src/feedCount.js`: `feedCountLabel()`, the footer's "N feed(s) today" text and `pageTitle()`, the tab title.
 - `src/localDate.js`: `localDateKey()`, the local `YYYY-MM-DD` date used for "today".
 - `src/index.js`: app entry; configures Amplify and renders `App`.
 - `src/graphql/`: queries, mutations, subscriptions and `schema.json`,
