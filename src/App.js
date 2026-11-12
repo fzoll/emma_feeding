@@ -50,10 +50,13 @@ const App = ({ signOut }) => {
     setFeeds(feedsFromAPI);
 
     var summary = feedsFromAPI.reduce(function(obj, feed){
+      const label = feed.comment && feed.comment.trim()
+        ? `${feed.name} (${feed.comment})`
+        : feed.name;
       if (!obj[feed.feedAt]) {
-          obj[feed.feedAt] = [`${feed.name} (${feed.comment})`];
+          obj[feed.feedAt] = [label];
       } else {
-          obj[feed.feedAt].push(`${feed.name} (${feed.comment})`);
+          obj[feed.feedAt].push(label);
       }
       return obj;
     }, {});
