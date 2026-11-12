@@ -24,6 +24,8 @@ import {
 } from "react-vertical-timeline-component";
 import "react-vertical-timeline-component/style.min.css";
 import { localDateKey } from "./localDate";
+import { parseStockSize, STOCK_SIZE_ERROR } from "./stockSize";
+import { sortStocksOldestFirst } from "./sortStocks";
 
 
 const App = ({ signOut }) => {
@@ -31,6 +33,7 @@ const App = ({ signOut }) => {
   const dtString = dt.toLocaleDateString('hu-HU');
 
   const [stocks, setStocks] = useState([]);
+  const [stockSizeError, setStockSizeError] = useState("");
   const [feeds, setFeeds] = useState([]);
   const [feedsSum, setFeedsSum] = useState([]);
 
@@ -42,7 +45,7 @@ const App = ({ signOut }) => {
   async function fetchStocks() {
     const apiData = await API.graphql(graphqlOperation(listStocks, { filter: {remaining: {ne: 0}} }));
     const stocksFromAPI = apiData.data.listStocks.items;
-    setStocks(stocksFromAPI);
+    setStocks(sortStocksOldestFirst(stocksFromAPI));
   }
 
   async function fetchFeeds() {
@@ -69,10 +72,16 @@ const App = ({ signOut }) => {
   async function createStock(event) {
     event.preventDefault();
     const form = new FormData(event.target);
+    const remaining = parseStockSize(form.get("remaining"));
+    if (remaining === null) {
+      setStockSizeError(STOCK_SIZE_ERROR);
+      return;
+    }
+    setStockSizeError("");
     const data = {
       name: form.get("name"),
       madeAt: form.get("madeAt"),
-      remaining: parseInt(form.get("remaining")),
+      remaining,
       comment: form.get('comment')
     };
     await API.graphql({
@@ -172,6 +181,10 @@ const App = ({ signOut }) => {
             labelHidden
             variation="quiet"
             required
+            step="any"
+            hasError={!!stockSizeError}
+            errorMessage={stockSizeError}
+            onChange={() => setStockSizeError("")}
           />
           <TextField
             type="text"

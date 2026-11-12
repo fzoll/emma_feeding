@@ -21,10 +21,14 @@ Everything is in one screen, `src/App.js`, from top to bottom:
    email address as the username, requires a password of at least 8
    characters, and has MFA turned off. A **Sign Out** button sits in the header.
 2. **Create Stock form.** Fields: stock name, date made, number remaining
-   (stock size) and an optional comment. Submitting creates a `Stock` record
-   and refreshes the list.
+   (stock size) and an optional comment. The stock size must be a whole number
+   of 1 or more; 0, a negative number or a decimal shows "Enter a whole number
+   of 1 or more." and no record is created. An empty field is stopped by the
+   browser's own required-field check. Submitting a valid form creates a
+   `Stock` record and refreshes the list.
 3. **Current Stocks.** Lists every stock whose `remaining` is not 0 (name, date
-   made, remaining count, comment). **Use** does three things: lowers
+   made, remaining count, comment), oldest date made first so the stock to use
+   next is on top. **Use** does three things: lowers
    `remaining` by 1, updates the stock, and creates a `Feed` named
    `<stock name> (<date made>)` that carries the stock's comment and today's
    local date. A stock that reaches 0 disappears from the list.
@@ -91,9 +95,12 @@ configuration for `http://localhost:3000`.
 CI=true npm test -- --watchAll=false
 ```
 
-Tests run with react-scripts (Jest and Testing Library). There are two test
-files:
+Tests run with react-scripts (Jest and Testing Library). The test files are:
 
+- `src/stockSize.test.js` tests `parseStockSize()` (whole numbers of 1 or more
+  are accepted, everything else gives `null`). It passes.
+- `src/sortStocks.test.js` tests `sortStocksOldestFirst()` (oldest first, ties
+  keep their order). It passes.
 - `src/localDate.test.js` tests `localDateKey()` (local date, not UTC; month and
   day are zero-padded). It passes.
 - `src/App.test.js` is the unmodified Create React App sample: it renders the
@@ -109,6 +116,8 @@ The UI itself has no working tests yet.
 - `src/App.js`: the whole UI and its data calls.
 - `src/feedCount.js`: `feedCountLabel()`, the footer's "N feed(s) today" text and `pageTitle()`, the tab title.
 - `src/localDate.js`: `localDateKey()`, the local `YYYY-MM-DD` date used for "today".
+- `src/stockSize.js`: `parseStockSize()` and the error text for the stock size field.
+- `src/sortStocks.js`: `sortStocksOldestFirst()`, the order of the Current Stocks list.
 - `src/index.js`: app entry; configures Amplify and renders `App`.
 - `src/graphql/`: queries, mutations, subscriptions and `schema.json`,
   generated from the schema (see `.graphqlconfig.yml`).
