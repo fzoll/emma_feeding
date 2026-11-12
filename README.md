@@ -31,15 +31,14 @@ Everything is in one screen, `src/App.js`, from top to bottom:
    comment. Useful for feeds that did not come from a stock.
 5. **Feeds timeline.** Feeds are grouped by date, newest date first, and drawn
    as a vertical timeline. Each entry reads `name (comment)`. When a feed has
-   no comment (empty or only spaces), the entry is just `name`, with no empty
+   no comment (missing, empty or only whitespace), the entry is just `name`, with no empty
    parentheses.
 6. **Footer.** A bar showing today's date, how many feeds happened today and
    what they were, or "No feeds yet today".
 
 "Today" is the local calendar date of the device, as `YYYY-MM-DD`. The helper
 `localDateKey()` in `src/localDate.js` builds it, and both the footer and the
-**Use** button's feed date use it. The earlier UTC date (`toISOString()`) could
-be a day off around midnight.
+**Use** button's feed date use it.
 
 The lists are loaded with a single query each (`listStocks`, `listFeeds`): the
 app passes no `limit` and never follows `nextToken`. Once there are many
