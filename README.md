@@ -21,9 +21,10 @@ Everything is in one screen, `src/App.js`, from top to bottom:
    characters, and has MFA turned off. A **Sign Out** button sits in the header.
 2. **Create Stock form.** Fields: stock name, date made, number remaining
    (stock size) and an optional comment. The stock size must be a whole number
-   of 1 or more; anything else (empty, 0, negative, decimal, text) shows
-   "Enter a whole number of 1 or more." and no record is created. Submitting
-   a valid form creates a `Stock` record and refreshes the list.
+   of 1 or more; 0, a negative number or a decimal shows "Enter a whole number
+   of 1 or more." and no record is created. An empty field is stopped by the
+   browser's own required-field check. Submitting a valid form creates a
+   `Stock` record and refreshes the list.
 3. **Current Stocks.** Lists every stock whose `remaining` is not 0 (name, date
    made, remaining count, comment), oldest date made first so the stock to use
    next is on top. **Use** does three things: lowers
